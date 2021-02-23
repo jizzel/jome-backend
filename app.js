@@ -4,8 +4,14 @@ const logger = require('morgan');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 const schema =  require('./schemas/schema');
+const mongoose = require('mongoose');
 
-const port = 3000;
+mongoose.connect('mongodb://localhost/jome', {useNewUrlParser: true})
+    .then(() => console.log('MongoDB successfully connected'))
+    .catch((err)=> console.log('Failed to connect o mongoDb: ', err));
+
+
+const productsRouter = require('./routes/products');
 
 const schemaM = buildSchema(`
     type Query {
@@ -27,10 +33,13 @@ app.use('/graphql', graphqlHTTP({
     // rootValue: root,
     graphiql: true
 }));
+app.use('/products', productsRouter );
 
 app.get('/', (req, res) => {
     res.send('Hello world!')
 });
+
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log('app running at port: ' + port)
 });
